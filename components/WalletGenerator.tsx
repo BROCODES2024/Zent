@@ -64,7 +64,7 @@ export default function WalletGenerator() {
       {/* Header */}
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-linear-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
             <Wallet className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-6xl font-bold text-white">Zent</h1>
@@ -99,7 +99,7 @@ export default function WalletGenerator() {
             </div>
             <Button
               onClick={handleCreateVault}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              className="w-full bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
               size="lg"
             >
               Create Vault
@@ -170,7 +170,7 @@ export default function WalletGenerator() {
               <div className="flex gap-2">
                 <Button
                   onClick={handleAddWallet}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                  className="bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Wallet

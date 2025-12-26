@@ -78,7 +78,7 @@ export default function WalletDisplay({
           {/* Ethereum Section */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
                 <span className="text-white text-xs font-bold">ETH</span>
               </div>
               <label className="text-sm font-medium text-slate-300">
@@ -156,7 +156,7 @@ export default function WalletDisplay({
           {/* Solana Section */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-linear-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
                 <span className="text-white text-xs font-bold">SOL</span>
               </div>
               <label className="text-sm font-medium text-slate-300">
