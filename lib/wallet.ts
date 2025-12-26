@@ -30,7 +30,6 @@ export function deriveWallet(
   seedPhrase: string,
   accountIndex: number
 ): WalletData {
-  // Derive Ethereum wallet using BIP44 path: m/44'/60'/0'/0/{accountIndex}
   const ethPath = `m/44'/60'/0'/0/${accountIndex}`;
   const ethHdNode = ethers.HDNodeWallet.fromPhrase(
     seedPhrase,
@@ -38,7 +37,6 @@ export function deriveWallet(
     ethPath
   );
 
-  // Derive Solana wallet using BIP44 path: m/44'/501'/{accountIndex}'/0'
   const solPath = `m/44'/501'/${accountIndex}'/0'`;
   const seed = bip39.mnemonicToSeedSync(seedPhrase);
   const derivedSeed = derivePath(solPath, seed.toString("hex")).key;

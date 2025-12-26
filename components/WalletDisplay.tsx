@@ -34,21 +34,32 @@ export default function WalletDisplay({
   };
 
   return (
-    <Card className="bg-slate-900/50 backdrop-blur border-slate-800">
+    <Card className="group overflow-hidden bg-white/5 backdrop-blur-xl border-white/10 hover:border-white/20 transition-all duration-300 shadow-lg">
       {/* Wallet Header */}
       <div
-        className="p-6 cursor-pointer hover:bg-slate-800/30 transition-colors"
+        className="p-6 cursor-pointer hover:bg-white/5 transition-colors relative"
         onClick={() => setIsExpanded(!isExpanded)}
       >
+        {/* Subtle accent line on the left */}
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+
         <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-xl font-semibold text-white">
-              Wallet {wallet.accountIndex + 1}
-            </h3>
-            <p className="text-sm text-slate-500 mt-1">
-              Account Index: {wallet.accountIndex}
-            </p>
+          <div className="flex items-center gap-4">
+            {/* Decorative Index Circle */}
+            <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center font-mono text-slate-400 group-hover:text-purple-400 group-hover:border-purple-500/50 transition-colors">
+              {wallet.accountIndex + 1}
+            </div>
+
+            <div>
+              <h3 className="text-xl font-bold text-white tracking-tight group-hover:text-purple-100 transition-colors">
+                Wallet {wallet.accountIndex + 1}
+              </h3>
+              <p className="text-xs font-mono text-slate-500 mt-0.5 uppercase tracking-wider">
+                Multi-Chain • Index {wallet.accountIndex}
+              </p>
+            </div>
           </div>
+
           <div className="flex items-center gap-2">
             {canDelete && (
               <Button
@@ -58,44 +69,48 @@ export default function WalletDisplay({
                   e.stopPropagation();
                   onDelete(wallet.id);
                 }}
-                className="text-red-400 hover:text-red-300 hover:bg-red-950/30"
+                className="text-slate-400 hover:text-red-400 hover:bg-red-500/10 hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] transition-all duration-300 rounded-xl"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
             )}
-            {isExpanded ? (
-              <ChevronUp className="w-5 h-5 text-slate-400" />
-            ) : (
-              <ChevronDown className="w-5 h-5 text-slate-400" />
-            )}
+            <div
+              className={`transition-transform duration-300 ${
+                isExpanded ? "rotate-180" : ""
+              }`}
+            >
+              <ChevronDown className="w-5 h-5 text-slate-400 group-hover:text-white" />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Wallet Details */}
       {isExpanded && (
-        <div className="px-6 pb-6 space-y-6">
+        <div className="px-6 pb-6 space-y-6 border-t border-white/5 pt-6 bg-black/20">
           {/* Ethereum Section */}
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xs font-bold">ETH</span>
+          <div className="relative group/eth">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-black/50 border border-white/10 flex items-center justify-center shadow-[0_0_10px_rgba(59,130,246,0.2)]">
+                <span className="text-blue-400 text-xs font-bold">ETH</span>
               </div>
-              <label className="text-sm font-medium text-slate-300">
-                Ethereum
+              <label className="text-sm font-bold text-transparent bg-clip-text bg-linear-to-r from-blue-400 to-indigo-400">
+                Ethereum Mainnet
               </label>
             </div>
-            <div className="space-y-3">
+
+            <div className="space-y-4 pl-2 border-l-2 border-blue-500/20 ml-4">
+              {/* Address */}
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">
-                  Address
+                <label className="text-[10px] uppercase tracking-wider text-slate-500 mb-1.5 block font-semibold">
+                  Public Address
                 </label>
                 <div className="flex gap-2">
-                  <div className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono break-all">
+                  <div className="flex-1 bg-black/50 border border-white/10 hover:border-blue-500/30 transition-colors rounded-xl px-4 py-3 text-sm text-slate-300 font-mono break-all shadow-inner">
                     {wallet.ethereum.address}
                   </div>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
                     onClick={() =>
                       copyToClipboard(
@@ -103,35 +118,43 @@ export default function WalletDisplay({
                         "Ethereum address"
                       )
                     }
-                    className="border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+                    className="text-slate-400 hover:text-white hover:bg-white/10 rounded-xl"
                   >
                     <Copy className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
+
+              {/* Private Key */}
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs text-slate-500">Private Key</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+                    Private Key
+                  </label>
                   <Button
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     onClick={() => setShowEthKey(!showEthKey)}
-                    className="h-6 w-6 text-slate-400 hover:text-white"
+                    className="h-6 px-2 text-xs text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg"
                   >
                     {showEthKey ? (
-                      <EyeOff className="w-3 h-3" />
+                      <span className="flex items-center gap-1">
+                        <EyeOff className="w-3 h-3" /> Hide
+                      </span>
                     ) : (
-                      <Eye className="w-3 h-3" />
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" /> Reveal
+                      </span>
                     )}
                   </Button>
                 </div>
                 {showEthKey ? (
-                  <div className="flex gap-2">
-                    <div className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono break-all">
+                  <div className="flex gap-2 animate-in fade-in duration-300">
+                    <div className="flex-1 bg-blue-950/20 border border-blue-500/20 rounded-xl px-4 py-3 text-sm text-blue-200 font-mono break-all shadow-[0_0_15px_rgba(59,130,246,0.1)]">
                       {wallet.ethereum.privateKey}
                     </div>
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="icon"
                       onClick={() =>
                         copyToClipboard(
@@ -139,74 +162,90 @@ export default function WalletDisplay({
                           "Ethereum private key"
                         )
                       }
-                      className="border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+                      className="text-blue-400 hover:text-white hover:bg-blue-500/20 rounded-xl"
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
                 ) : (
-                  <div className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-500 text-center">
-                    •••••••••••••••••
+                  <div
+                    className="bg-black/50 border border-white/5 rounded-xl px-4 py-3 text-sm text-slate-600 font-mono text-center tracking-[0.2em] cursor-pointer hover:text-slate-400 hover:bg-white/5 transition-all"
+                    onClick={() => setShowEthKey(true)}
+                  >
+                    ••••••••••••••••••••••••••••
                   </div>
                 )}
               </div>
             </div>
           </div>
 
+          {/* Divider */}
+          <div className="h-px bg-linear-to-r from-transparent via-white/10 to-transparent" />
+
           {/* Solana Section */}
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-linear-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xs font-bold">SOL</span>
+          <div className="relative group/sol">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-black/50 border border-white/10 flex items-center justify-center shadow-[0_0_10px_rgba(168,85,247,0.2)]">
+                <span className="text-purple-400 text-xs font-bold">SOL</span>
               </div>
-              <label className="text-sm font-medium text-slate-300">
+              <label className="text-sm font-bold text-transparent bg-clip-text bg-linear-to-r from-purple-400 to-pink-400">
                 Solana
               </label>
             </div>
-            <div className="space-y-3">
+
+            <div className="space-y-4 pl-2 border-l-2 border-purple-500/20 ml-4">
+              {/* Address */}
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">
-                  Address
+                <label className="text-[10px] uppercase tracking-wider text-slate-500 mb-1.5 block font-semibold">
+                  Public Address
                 </label>
                 <div className="flex gap-2">
-                  <div className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono break-all">
+                  <div className="flex-1 bg-black/50 border border-white/10 hover:border-purple-500/30 transition-colors rounded-xl px-4 py-3 text-sm text-slate-300 font-mono break-all shadow-inner">
                     {wallet.solana.address}
                   </div>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
                     onClick={() =>
                       copyToClipboard(wallet.solana.address, "Solana address")
                     }
-                    className="border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+                    className="text-slate-400 hover:text-white hover:bg-white/10 rounded-xl"
                   >
                     <Copy className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
+
+              {/* Private Key */}
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs text-slate-500">Private Key</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+                    Private Key
+                  </label>
                   <Button
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     onClick={() => setShowSolKey(!showSolKey)}
-                    className="h-6 w-6 text-slate-400 hover:text-white"
+                    className="h-6 px-2 text-xs text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 rounded-lg"
                   >
                     {showSolKey ? (
-                      <EyeOff className="w-3 h-3" />
+                      <span className="flex items-center gap-1">
+                        <EyeOff className="w-3 h-3" /> Hide
+                      </span>
                     ) : (
-                      <Eye className="w-3 h-3" />
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" /> Reveal
+                      </span>
                     )}
                   </Button>
                 </div>
                 {showSolKey ? (
-                  <div className="flex gap-2">
-                    <div className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono break-all">
+                  <div className="flex gap-2 animate-in fade-in duration-300">
+                    <div className="flex-1 bg-purple-950/20 border border-purple-500/20 rounded-xl px-4 py-3 text-sm text-purple-200 font-mono break-all shadow-[0_0_15px_rgba(168,85,247,0.1)]">
                       {wallet.solana.privateKey}
                     </div>
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="icon"
                       onClick={() =>
                         copyToClipboard(
@@ -214,14 +253,17 @@ export default function WalletDisplay({
                           "Solana private key"
                         )
                       }
-                      className="border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+                      className="text-purple-400 hover:text-white hover:bg-purple-500/20 rounded-xl"
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
                 ) : (
-                  <div className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-500 text-center">
-                    •••••••••••••••••
+                  <div
+                    className="bg-black/50 border border-white/5 rounded-xl px-4 py-3 text-sm text-slate-600 font-mono text-center tracking-[0.2em] cursor-pointer hover:text-slate-400 hover:bg-white/5 transition-all"
+                    onClick={() => setShowSolKey(true)}
+                  >
+                    ••••••••••••••••••••••••••••
                   </div>
                 )}
               </div>
