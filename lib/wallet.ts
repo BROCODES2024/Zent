@@ -4,7 +4,6 @@ import {
   Connection,
   Keypair,
   PublicKey,
-  clusterApiUrl,
   LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
 import * as bs58 from "bs58";
@@ -57,44 +56,18 @@ export const deriveWallet = (
   };
 };
 
-// --- NEW BALANCE LOGIC ---
+// --- SOLANA DEVNET BALANCE LOGIC ONLY ---
 
-export type Network = "mainnet" | "devnet";
+const SOL_DEVNET_RPC = "https://api.devnet.solana.com";
 
-// Reliable public RPC endpoints
-const ETH_RPC = {
-  mainnet: "https://eth.llamarpc.com",
-  devnet: "https://rpc.ankr.com/eth_sepolia", // Sepolia is the standard devnet now
-};
-
-export const getEthBalance = async (
-  address: string,
-  network: Network
-): Promise<string> => {
+export const getSolBalance = async (address: string): Promise<string> => {
   try {
-    const provider = new ethers.JsonRpcProvider(ETH_RPC[network]);
-    const balance = await provider.getBalance(address);
-    // Format to 4 decimal places for cleaner UI
-    const formatted = ethers.formatEther(balance);
-    return parseFloat(formatted).toFixed(4);
-  } catch (error) {
-    console.error("Error fetching ETH balance:", error);
-    return "0.0000";
-  }
-};
-
-export const getSolBalance = async (
-  address: string,
-  network: Network
-): Promise<string> => {
-  try {
-    const cluster = network === "mainnet" ? "mainnet-beta" : "devnet";
-    const connection = new Connection(clusterApiUrl(cluster));
+    const connection = new Connection(SOL_DEVNET_RPC);
     const publicKey = new PublicKey(address);
     const balance = await connection.getBalance(publicKey);
     return (balance / LAMPORTS_PER_SOL).toFixed(4);
   } catch (error) {
-    console.error("Error fetching SOL balance:", error);
-    return "0.0000";
+    console.error("Error fetching SOL Devnet balance:", error);
+    throw error;
   }
 };
