@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { WalletData } from "@/lib/wallet";
+import { useState, useEffect } from "react";
+import {
+  WalletData,
+  getEthBalance,
+  getSolBalance,
+  Network,
+} from "@/lib/wallet";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +15,8 @@ import {
   Copy,
   Trash2,
   ChevronDown,
-  ChevronUp,
+  RefreshCw,
+  Globe,
 } from "lucide-react";
 
 interface WalletDisplayProps {
@@ -28,9 +34,41 @@ export default function WalletDisplay({
   const [showSolKey, setShowSolKey] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Balance State
+  const [network, setNetwork] = useState<Network>("mainnet");
+  const [loading, setLoading] = useState(false);
+  const [balances, setBalances] = useState({ eth: "0.0000", sol: "0.0000" });
+
+  const fetchBalances = async () => {
+    setLoading(true);
+    try {
+      const [ethBal, solBal] = await Promise.all([
+        getEthBalance(wallet.ethereum.address, network),
+        getSolBalance(wallet.solana.address, network),
+      ]);
+      setBalances({ eth: ethBal, sol: solBal });
+    } catch (error) {
+      console.error("Failed to fetch balances", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch balances when expanded or network changes
+  useEffect(() => {
+    if (isExpanded) {
+      fetchBalances();
+    }
+  }, [isExpanded, network]);
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     alert(`${label} copied to clipboard!`);
+  };
+
+  const toggleNetwork = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setNetwork((prev) => (prev === "mainnet" ? "devnet" : "mainnet"));
   };
 
   return (
@@ -41,7 +79,7 @@ export default function WalletDisplay({
         onClick={() => setIsExpanded(!isExpanded)}
       >
         {/* Subtle accent line on the left */}
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity" />
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -88,15 +126,56 @@ export default function WalletDisplay({
       {/* Wallet Details */}
       {isExpanded && (
         <div className="px-6 pb-6 space-y-6 border-t border-white/5 pt-6 bg-black/20">
+          {/* Controls Bar (Network & Refresh) */}
+          <div className="flex items-center justify-between bg-black/40 p-3 rounded-xl border border-white/5">
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={toggleNetwork}
+                className={`h-8 text-xs font-bold uppercase tracking-wider border transition-all ${
+                  network === "mainnet"
+                    ? "border-green-500/30 text-green-400 bg-green-500/10"
+                    : "border-yellow-500/30 text-yellow-400 bg-yellow-500/10"
+                }`}
+              >
+                <Globe className="w-3 h-3 mr-2" />
+                {network}
+              </Button>
+            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={fetchBalances}
+              disabled={loading}
+              className="h-8 text-slate-400 hover:text-white hover:bg-white/10"
+            >
+              <RefreshCw
+                className={`w-3 h-3 mr-2 ${loading ? "animate-spin" : ""}`}
+              />
+              {loading ? "Fetching..." : "Refresh Balances"}
+            </Button>
+          </div>
+
           {/* Ethereum Section */}
           <div className="relative group/eth">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-black/50 border border-white/10 flex items-center justify-center shadow-[0_0_10px_rgba(59,130,246,0.2)]">
-                <span className="text-blue-400 text-xs font-bold">ETH</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-black/50 border border-white/10 flex items-center justify-center shadow-[0_0_10px_rgba(59,130,246,0.2)]">
+                  <span className="text-blue-400 text-xs font-bold">ETH</span>
+                </div>
+                <label className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                  Ethereum
+                </label>
               </div>
-              <label className="text-sm font-bold text-transparent bg-clip-text bg-linear-to-r from-blue-400 to-indigo-400">
-                Ethereum Mainnet
-              </label>
+              <div className="text-right">
+                <div className="text-sm font-mono text-white font-bold">
+                  {balances.eth} ETH
+                </div>
+                <div className="text-[10px] text-slate-500 uppercase">
+                  Balance
+                </div>
+              </div>
             </div>
 
             <div className="space-y-4 pl-2 border-l-2 border-blue-500/20 ml-4">
@@ -180,17 +259,27 @@ export default function WalletDisplay({
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-linear-to-r from-transparent via-white/10 to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
           {/* Solana Section */}
           <div className="relative group/sol">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-black/50 border border-white/10 flex items-center justify-center shadow-[0_0_10px_rgba(168,85,247,0.2)]">
-                <span className="text-purple-400 text-xs font-bold">SOL</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-black/50 border border-white/10 flex items-center justify-center shadow-[0_0_10px_rgba(168,85,247,0.2)]">
+                  <span className="text-purple-400 text-xs font-bold">SOL</span>
+                </div>
+                <label className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                  Solana
+                </label>
               </div>
-              <label className="text-sm font-bold text-transparent bg-clip-text bg-linear-to-r from-purple-400 to-pink-400">
-                Solana
-              </label>
+              <div className="text-right">
+                <div className="text-sm font-mono text-white font-bold">
+                  {balances.sol} SOL
+                </div>
+                <div className="text-[10px] text-slate-500 uppercase">
+                  Balance
+                </div>
+              </div>
             </div>
 
             <div className="space-y-4 pl-2 border-l-2 border-purple-500/20 ml-4">
